@@ -13,6 +13,8 @@ public class GUI extends JFrame {
     private JButton startButton;
     private JButton gambleButton;
     private JTextField horseNameField;
+    private String selectedCharacter = "";
+    private JLabel selectedCharacterLabel;
 
     public GUI() {
         createUI();
@@ -47,17 +49,14 @@ public class GUI extends JFrame {
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 50));
         
-        // Track Length
         leftPanel.add(new JLabel("Track Length (10-50):"));
         trackLengthField = new JTextField(10);
         leftPanel.add(trackLengthField);
         
-        // Number of Tracks
         leftPanel.add(new JLabel("Number of Tracks (2-8):"));
         noTracksField = new JTextField(10);
         leftPanel.add(noTracksField);
         
-        // Track Status
         leftPanel.add(new JLabel("Track Status:"));
         JComboBox<String> trackStatus = new JComboBox<>(new String[]{"Sunny", "Rainy", "Random"});
         leftPanel.add(trackStatus);
@@ -68,30 +67,57 @@ public class GUI extends JFrame {
         add(leftPanel, gbc);
     }
     
-
     private void setupHorsePanel(GridBagConstraints gbc) {
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
-        
+    
         rightPanel.add(new JLabel("Horse Breed:"));
         horseBreed = new JComboBox<>(new String[]{"Thoroughbred", "Arabian", "Quarter Horse"});
         rightPanel.add(horseBreed);
-        
+    
         rightPanel.add(new JLabel("Horse Color:"));
         horseColor = new JComboBox<>(new String[]{"Black", "White", "Brown"});
         rightPanel.add(horseColor);
     
-        // Adding Horse Name
         rightPanel.add(new JLabel("Horse Name:"));
-        horseNameField = new JTextField(10); 
+        horseNameField = new JTextField(10);
         rightPanel.add(horseNameField);
+    
+        rightPanel.add(new JLabel("Selected Horse Character:"));
+        selectedCharacterLabel = new JLabel("None selected");
+        rightPanel.add(selectedCharacterLabel);
+    
+        JButton characterButton = new JButton("Select Horse Character");
+        characterButton.addActionListener(this::openCharacterSelectionWindow);
+        rightPanel.add(characterButton);
     
         gbc.gridx = 1;
         gbc.gridy = 0;
         add(rightPanel, gbc);
     }
-
+    
+    private void openCharacterSelectionWindow(ActionEvent e) {
+        JFrame characterWindow = new JFrame("Select Horse Character");
+        characterWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        characterWindow.setLayout(new FlowLayout());
+    
+        String[] characters = {"🐎", "🎠", "🐴"};
+        for (String character : characters) {
+            JButton charButton = new JButton(character);
+            charButton.addActionListener(event -> {
+                selectedCharacter = character;
+                selectedCharacterLabel.setText(character); 
+                characterWindow.dispose(); 
+            });
+            characterWindow.add(charButton);
+        }
+    
+        characterWindow.pack();
+        characterWindow.setLocationRelativeTo(null);
+        characterWindow.setVisible(true);
+    }
+       
     private void setupButtons(GridBagConstraints gbc) {
         startButton = new JButton("Start Race");
         startButton.addActionListener(this::startRace);
@@ -113,7 +139,6 @@ public class GUI extends JFrame {
         gbc.gridx = 2; 
         add(gambleButton, gbc);
     }
-    
     
     private void openShopWindow(ActionEvent e) {
         JFrame shopWindow = new JFrame("Shop");
@@ -211,7 +236,7 @@ public class GUI extends JFrame {
     
     private void startRace(ActionEvent e) {
         try {
-            // Check for empty fields including horse name
+            
             if (trackLengthField.getText().trim().isEmpty() || noTracksField.getText().trim().isEmpty() || horseNameField.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "All fields, including the horse name, must be filled out.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -224,6 +249,11 @@ public class GUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "Track length must be between 10 and 50, and number of tracks between 0 and 8.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
+            if (selectedCharacter.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please select a horse character before starting the race.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
         
             String horseName = horseNameField.getText().trim(); // Get the horse's name
             System.out.println("Track Length: " + trackLength + ", Number of Tracks: " + noTracks);
@@ -234,8 +264,6 @@ public class GUI extends JFrame {
         }
     }
     
-    
-
     private void openGambleWindow(ActionEvent e) {
         JFrame gambleWindow = new JFrame("Gamble");
         gambleWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
