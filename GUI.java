@@ -13,7 +13,7 @@ public class GUI extends JFrame {
     private JButton startButton;
     private JButton gambleButton;
     private JTextField horseNameField;
-    private String selectedCharacter = "";
+    private char selectedCharacter = '\u0000';
     private JLabel selectedCharacterLabel;
 
     public GUI() {
@@ -66,53 +66,53 @@ public class GUI extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         add(leftPanel, gbc);
     }
-    
+
     private void setupHorsePanel(GridBagConstraints gbc) {
         JPanel rightPanel = new JPanel();
         rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
-    
+
         rightPanel.add(new JLabel("Horse Breed:"));
         horseBreed = new JComboBox<>(new String[]{"Thoroughbred", "Arabian", "Quarter Horse"});
         rightPanel.add(horseBreed);
-    
+
         rightPanel.add(new JLabel("Horse Color:"));
         horseColor = new JComboBox<>(new String[]{"Black", "White", "Brown"});
         rightPanel.add(horseColor);
-    
+
         rightPanel.add(new JLabel("Horse Name:"));
         horseNameField = new JTextField(10);
         rightPanel.add(horseNameField);
-    
+
         rightPanel.add(new JLabel("Selected Horse Character:"));
         selectedCharacterLabel = new JLabel("None selected");
         rightPanel.add(selectedCharacterLabel);
-    
+
         JButton characterButton = new JButton("Select Horse Character");
         characterButton.addActionListener(this::openCharacterSelectionWindow);
         rightPanel.add(characterButton);
-    
+
         gbc.gridx = 1;
         gbc.gridy = 0;
         add(rightPanel, gbc);
     }
-    
+
     private void openCharacterSelectionWindow(ActionEvent e) {
         JFrame characterWindow = new JFrame("Select Horse Character");
         characterWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         characterWindow.setLayout(new FlowLayout());
-    
-        String[] characters = {"🐎", "🎠", "🐴"};
-        for (String character : characters) {
-            JButton charButton = new JButton(character);
+
+        char[] characters = {'A', 'B', '♘'}; 
+        for (char character : characters) {
+            JButton charButton = new JButton(String.valueOf(character));
             charButton.addActionListener(event -> {
                 selectedCharacter = character;
-                selectedCharacterLabel.setText(character); 
+                selectedCharacterLabel.setText(String.valueOf(character)); 
                 characterWindow.dispose(); 
             });
             characterWindow.add(charButton);
         }
-    
+
         characterWindow.pack();
         characterWindow.setLocationRelativeTo(null);
         characterWindow.setVisible(true);
@@ -150,7 +150,7 @@ public class GUI extends JFrame {
         JLabel balanceLabel = new JLabel("Current Balance: $" + balance[0]);
         shopWindow.add(balanceLabel);
 
-        String[] items = {"Saddle", "Bridle", "Boots"};
+        String[] items = {"Speed Potion", "Jump Potion", "Steroids"};
         int[] prices = {50, 40, 30};
         Set<String> purchasedItems = readPurchasedItems();
 
@@ -236,33 +236,32 @@ public class GUI extends JFrame {
     
     private void startRace(ActionEvent e) {
         try {
-            
             if (trackLengthField.getText().trim().isEmpty() || noTracksField.getText().trim().isEmpty() || horseNameField.getText().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(this, "All fields, including the horse name, must be filled out.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        
+
             int trackLength = Integer.parseInt(trackLengthField.getText().trim());
             int noTracks = Integer.parseInt(noTracksField.getText().trim());
-    
+
             if (trackLength < 10 || trackLength > 50 || noTracks < 0 || noTracks > 8) {
                 JOptionPane.showMessageDialog(this, "Track length must be between 10 and 50, and number of tracks between 0 and 8.", "Input Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            if (selectedCharacter.isEmpty()) {
+            if (selectedCharacter == '\u0000') {  
                 JOptionPane.showMessageDialog(this, "Please select a horse character before starting the race.", "Selection Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        
-            String horseName = horseNameField.getText().trim(); // Get the horse's name
-            System.out.println("Track Length: " + trackLength + ", Number of Tracks: " + noTracks);
-            System.out.println("Horse Name: " + horseName + ", Breed: " + horseBreed.getSelectedItem() + ", Color: " + horseColor.getSelectedItem());
-        
+
+            this.dispose(); 
+            new RaceWindow(this); 
+            
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Please enter valid integer values for track settings.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+    
     
     private void openGambleWindow(ActionEvent e) {
         JFrame gambleWindow = new JFrame("Gamble");
@@ -298,5 +297,39 @@ public class GUI extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(GUI::new);
+    }
+
+    public int getTrackLength() {
+        try {
+            return Integer.parseInt(trackLengthField.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid track length.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return -1;  
+        }
+    }
+
+    public int getNumberOfTracks() {
+        try {
+            return Integer.parseInt(noTracksField.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number of tracks.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            return -1;  
+        }
+    }
+
+    public String getHorseBreed() {
+        return horseBreed.getSelectedItem().toString();
+    }
+
+    public String getHorseColor() {
+        return horseColor.getSelectedItem().toString();
+    }
+
+    public String getHorseName() {
+        return horseNameField.getText().trim();
+    }
+
+    public char getSelectedCharacter() {
+        return selectedCharacter;
     }
 }
