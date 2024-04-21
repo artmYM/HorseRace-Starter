@@ -10,11 +10,13 @@ public class GUI extends JFrame {
     private JTextField noTracksField;
     private JComboBox<String> horseBreed;
     private JComboBox<String> horseColor;
+    private JComboBox<String> trackStatus;
     private JButton startButton;
     private JButton gambleButton;
     private JTextField horseNameField;
     private char selectedCharacter = '\u0000';
     private JLabel selectedCharacterLabel;
+    
 
     public GUI() {
         createUI();
@@ -58,7 +60,7 @@ public class GUI extends JFrame {
         leftPanel.add(noTracksField);
         
         leftPanel.add(new JLabel("Track Status:"));
-        JComboBox<String> trackStatus = new JComboBox<>(new String[]{"Sunny", "Rainy", "Random"});
+        trackStatus = new JComboBox<>(new String[]{"Sunny", "Rainy", "Icy"});
         leftPanel.add(trackStatus);
     
         gbc.gridx = 0;
@@ -331,5 +333,9 @@ public class GUI extends JFrame {
 
     public char getSelectedCharacter() {
         return selectedCharacter;
+    }
+
+    public String getTrackStatus() {
+        return (String) trackStatus.getSelectedItem();
     }
 }
