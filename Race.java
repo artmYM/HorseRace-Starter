@@ -1,22 +1,30 @@
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JTextArea;
+import java.util.function.Consumer;
 
 public class Race {
     private int raceLength;
     private ArrayList<Horse> horses;
     private JTextArea raceOutput;
     private String trackCondition;
+    private Consumer<Horse> onWinnerDeclared;
 
-    public Race(int distance, JTextArea raceOutput, String trackCondition) {
+    public Race(int distance, JTextArea raceOutput, String trackCondition, Consumer<Horse> onWinnerDeclared) {
         this.raceLength = distance;
         this.horses = new ArrayList<>();
         this.raceOutput = raceOutput;
-        this.trackCondition = trackCondition; 
+        this.trackCondition = trackCondition;
+        this.onWinnerDeclared = onWinnerDeclared;
     }
 
     public void addHorse(Horse theHorse) {
         if (horses.size() < 8) {
+            if (theHorse.hasWonRecentRace()) {
+                double newConfidence = Math.min(1.0, theHorse.getConfidence() + 0.05); 
+                theHorse.setConfidence(newConfidence);
+                theHorse.setWonRecentRace(false); 
+            }
             horses.add(theHorse);
             raceOutput.append("Added " + theHorse.getName() + " to the race.\n");
         } else {
@@ -27,30 +35,34 @@ public class Race {
     public void startRace() {
         boolean finished = false;
         boolean allHorsesFallen = false;
-
+    
         for (Horse horse : horses) {
             horse.goBackToStart();
         }
-
+    
         while (!finished && !horses.isEmpty() && !allHorsesFallen) {
             allHorsesFallen = true;
-
+    
             for (Horse horse : horses) {
                 if (!horse.hasFallen()) {
                     allHorsesFallen = false;
                     moveHorse(horse);
                 }
             }
-
+    
             printRace();
-
+    
             for (Horse horse : horses) {
                 if (raceWonBy(horse)) {
+                    horse.setWonRecentRace(true);
                     finished = true;
+                    if (onWinnerDeclared != null) {
+                        onWinnerDeclared.accept(horse);
+                    }
                     break;
                 }
             }
-
+    
             if (!finished) {
                 try {
                     TimeUnit.MILLISECONDS.sleep(100);
@@ -61,16 +73,19 @@ public class Race {
                 }
             }
         }
-
-        if (!allHorsesFallen) {
+    
+        if (finished) {
             announceWinner();
+            finishRace();
         } else {
             raceOutput.append("All horses have fallen, no winner.\n");
         }
     }
+    
 
     private void announceWinner() {
         Horse winner = horses.stream()
+                             .filter(horse -> !horse.hasFallen())
                              .max((h1, h2) -> h1.getDistanceTravelled() - h2.getDistanceTravelled())
                              .orElse(null);
 
@@ -83,11 +98,11 @@ public class Race {
         if (!theHorse.hasFallen()) {
             double fallProbability = 0.1 * theHorse.getConfidence() * theHorse.getConfidence();
             if ("Rainy".equals(trackCondition)) {
-                fallProbability += 0.01; 
+                fallProbability += 0.01;
             } else if ("Icy".equals(trackCondition)) {
-                fallProbability += 0.02; 
+                fallProbability += 0.02;
                 if (Math.random() < 0.4) {
-                    theHorse.moveForward(); 
+                    theHorse.moveForward();
                 }
             }
 
@@ -96,6 +111,7 @@ public class Race {
             }
             if (Math.random() < fallProbability) {
                 theHorse.fall();
+                theHorse.setConfidence(Math.max(0.0, theHorse.getConfidence() - 0.01));
             }
         }
     }
@@ -105,7 +121,7 @@ public class Race {
     }
 
     private void printRace() {
-        StringBuilder builder = new StringBuilder("\u000C"); 
+        StringBuilder builder = new StringBuilder("\u000C");
         builder.append("Race Track:\n");
         for (Horse horse : horses) {
             builder.append(printLane(horse)).append("\n");
@@ -120,19 +136,80 @@ public class Race {
         for (int i = 0; i < theHorse.getDistanceTravelled(); i++) {
             lane.append(" ");
         }
-        
+
         if (theHorse.hasFallen()) {
             lane.append("X");
         } else {
-            lane.append(theHorse.getSymbol());  
+            lane.append(theHorse.getSymbol());
         }
 
         for (int i = theHorse.getDistanceTravelled() + 1; i < raceLength; i++) {
             lane.append(" ");
         }
-        
+
         lane.append("|");
         lane.append(" ").append(theHorse.getName()).append(" (Confidence: ").append(String.format("%.2f", theHorse.getConfidence())).append(")");
         return lane.toString();
     }
+
+    public int getRaceLength() {
+        return raceLength;
+    }
+
+    public String getTrackCondition() {
+        return trackCondition;
+    }
+    
+    public Horse getWinner() {
+        return horses.stream()
+                     .filter(horse -> !horse.hasFallen())
+                     .max((h1, h2) -> h1.getDistanceTravelled() - h2.getDistanceTravelled())
+                     .orElse(null);
+    }
+
+    public void finishRace() {
+        printRace(); 
+        rankHorses();
+
+
+        updateRecentRankings();
+
+        if (onWinnerDeclared != null) {
+            Horse winner = getWinner();
+            if (winner != null) {
+                onWinnerDeclared.accept(winner);
+            }
+        }
+    }
+
+    private void updateRecentRankings() {
+        for (int i = 0; i < horses.size(); i++) {
+            Horse horse = horses.get(i);
+            horse.addRecentPlacement(i + 1);  
+        }
+    }
+
+    private void rankHorses() {
+        horses.sort((h1, h2) -> {
+            if (h1.getDistanceTravelled() == h2.getDistanceTravelled()) {
+                return Double.compare(h2.getConfidence(), h1.getConfidence()); 
+            }
+            return h2.getDistanceTravelled() - h1.getDistanceTravelled(); 
+        });
+
+        StringBuilder ranking = new StringBuilder();
+        ranking.append("Final race rankings:\n");
+        int rank = 1;
+
+        for (Horse horse : horses) {
+            ranking.append(rank).append(" - ").append(horse.getName())
+                   .append(" (Distance: ").append(horse.getDistanceTravelled())
+                   .append(", Confidence: ").append(String.format("%.2f", horse.getConfidence()))
+                   .append(")\n");
+            rank++;
+        }
+
+        raceOutput.append(ranking.toString());
+    }
+    
 }
