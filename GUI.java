@@ -12,11 +12,9 @@ public class GUI extends JFrame {
     private JComboBox<String> horseColor;
     private JComboBox<String> trackStatus;
     private JButton startButton;
-    private JButton gambleButton;
     private JTextField horseNameField;
     private char selectedCharacter = '\u0000';
     private JLabel selectedCharacterLabel;
-    
 
     public GUI() {
         createUI();
@@ -25,13 +23,18 @@ public class GUI extends JFrame {
     private void createUI() {
         setTitle("Race Configurator");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
+        setLayout(new BorderLayout());
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.setBackground(new Color(240, 240, 240));
 
         setupMenuBar();
-        setupTrackPanel(gbc);
-        setupHorsePanel(gbc);
-        setupButtons(gbc);
+        setupEditorPanels(mainPanel);
+        setupButtons(mainPanel);
+
+        add(mainPanel, BorderLayout.CENTER);
 
         pack();
         setLocationRelativeTo(null);
@@ -44,67 +47,86 @@ public class GUI extends JFrame {
         menu.setFont(new Font("Serif", Font.BOLD, 16));
         menuBar.add(menu);
         setJMenuBar(menuBar);
+        menuBar.setBackground(new Color(200, 200, 200));
     }
 
-    private void setupTrackPanel(GridBagConstraints gbc) {
-        JPanel leftPanel = new JPanel();
-        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 50));
+    private void setupEditorPanels(JPanel panel) {
+        // Track Editor Section
+        JPanel trackPanel = new JPanel();
+        trackPanel.setLayout(new BoxLayout(trackPanel, BoxLayout.Y_AXIS));
+        trackPanel.setBorder(BorderFactory.createTitledBorder("Track Editor"));
+        trackPanel.setBackground(new Color(230, 230, 250));
         
-        leftPanel.add(new JLabel("Track Length (10-50):"));
+        trackPanel.add(new JLabel("Track Length (10-50):"));
         trackLengthField = new JTextField(10);
-        leftPanel.add(trackLengthField);
+        trackPanel.add(trackLengthField);
         
-        leftPanel.add(new JLabel("Number of Tracks (2-8):"));
+        trackPanel.add(new JLabel("Number of Tracks (2-8):"));
         noTracksField = new JTextField(10);
-        leftPanel.add(noTracksField);
+        trackPanel.add(noTracksField);
         
-        leftPanel.add(new JLabel("Track Status:"));
+        trackPanel.add(new JLabel("Track Status:"));
         trackStatus = new JComboBox<>(new String[]{"Sunny", "Rainy", "Icy"});
-        leftPanel.add(trackStatus);
-    
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(10, 10, 10, 10);
-        add(leftPanel, gbc);
-    }
+        trackPanel.add(trackStatus);
 
-    private void setupHorsePanel(GridBagConstraints gbc) {
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
-        rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
+        panel.add(trackPanel);
 
-        rightPanel.add(new JLabel("Horse Breed:"));
+        JPanel horsePanel = new JPanel();
+        horsePanel.setLayout(new BoxLayout(horsePanel, BoxLayout.Y_AXIS));
+        horsePanel.setBorder(BorderFactory.createTitledBorder("Horse Editor"));
+        horsePanel.setBackground(new Color(230, 230, 250));
+        
+        horsePanel.add(new JLabel("Horse Breed:"));
         horseBreed = new JComboBox<>(new String[]{"Thoroughbred", "Arabian", "Quarter Horse"});
-        rightPanel.add(horseBreed);
-
-        rightPanel.add(new JLabel("Horse Color:"));
+        horsePanel.add(horseBreed);
+        
+        horsePanel.add(new JLabel("Horse Color:"));
         horseColor = new JComboBox<>(new String[]{"Black", "White", "Brown"});
-        rightPanel.add(horseColor);
-
-        rightPanel.add(new JLabel("Horse Name:"));
+        horsePanel.add(horseColor);
+        
+        horsePanel.add(new JLabel("Horse Name:"));
         horseNameField = new JTextField(10);
-        rightPanel.add(horseNameField);
-
-        rightPanel.add(new JLabel("Selected Horse Character:"));
+        horsePanel.add(horseNameField);
+        
+        horsePanel.add(new JLabel("Selected Horse Character:"));
         selectedCharacterLabel = new JLabel("None selected");
-        rightPanel.add(selectedCharacterLabel);
-
-        JButton characterButton = new JButton("Select Horse Character");
+        horsePanel.add(selectedCharacterLabel);
+        
+        JButton characterButton = new JButton("Select Character");
         characterButton.addActionListener(this::openCharacterSelectionWindow);
-        rightPanel.add(characterButton);
+        horsePanel.add(characterButton);
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        add(rightPanel, gbc);
+        panel.add(horsePanel);
     }
+
+    private void setupButtons(JPanel panel) {
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        buttonPanel.setBackground(new Color(240, 240, 240));
+    
+        startButton = new JButton("Start Race");
+        startButton.addActionListener(this::startRace);
+        startButton.setBackground(new Color(153, 204, 255));
+        startButton.setOpaque(true);
+        startButton.setBorderPainted(false);
+        buttonPanel.add(startButton);
+    
+        JButton shopButton = new JButton("Shop");
+        shopButton.addActionListener(this::openShopWindow);
+        shopButton.setBackground(new Color(204, 204, 204));
+        shopButton.setOpaque(true);
+        shopButton.setBorderPainted(false);
+        buttonPanel.add(shopButton);
+    
+        panel.add(buttonPanel);
+    }
+    
 
     private void openCharacterSelectionWindow(ActionEvent e) {
         JFrame characterWindow = new JFrame("Select Horse Character");
         characterWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         characterWindow.setLayout(new FlowLayout());
 
-        char[] characters = {'A', 'B', '♘'}; 
+        char[] characters = {'\u2655', '\u2654', '♘', '\u2665', '\u2605', '\u2656', '\u2657', '♙', '♠', '♣', '♦', '♪', '☀', '❄', '∞'};
         for (char character : characters) {
             JButton charButton = new JButton(String.valueOf(character));
             charButton.addActionListener(event -> {
@@ -118,29 +140,7 @@ public class GUI extends JFrame {
         characterWindow.pack();
         characterWindow.setLocationRelativeTo(null);
         characterWindow.setVisible(true);
-    }
-       
-    private void setupButtons(GridBagConstraints gbc) {
-        startButton = new JButton("Start Race");
-        startButton.addActionListener(this::startRace);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        add(startButton, gbc);
-    
-        JButton shopButton = new JButton("Shop");
-        shopButton.addActionListener(this::openShopWindow);
-        gbc.gridx = 1; 
-        add(shopButton, gbc);
-    
-        gambleButton = new JButton("Gamble!");
-        gambleButton.addActionListener(this::openGambleWindow);
-        gambleButton.setBackground(Color.GREEN);
-        gambleButton.setOpaque(true);
-        gambleButton.setBorderPainted(false);
-        gbc.gridx = 2; 
-        add(gambleButton, gbc);
-    }
+    } 
     
     private void openShopWindow(ActionEvent e) {
         JFrame shopWindow = new JFrame("Shop");
@@ -264,38 +264,6 @@ public class GUI extends JFrame {
         }
     }
     
-    
-    private void openGambleWindow(ActionEvent e) {
-        JFrame gambleWindow = new JFrame("Gamble");
-        gambleWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        gambleWindow.setLayout(new FlowLayout());
-
-        File file = new File("balance.txt");
-        int balance = 100; 
-
-        if (file.exists()) {
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                balance = Integer.parseInt(reader.readLine().trim());
-            } catch (IOException | NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Failed to read balance.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write(String.valueOf(balance));
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(this, "Failed to initialize balance.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
-        JLabel balanceLabel = new JLabel("Current Balance: $" + balance);
-        gambleWindow.add(balanceLabel);
-
-        // TODO: add more components to the gamble window
-
-        gambleWindow.setSize(300, 200);
-        gambleWindow.setLocationRelativeTo(null);
-        gambleWindow.setVisible(true);
-    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(GUI::new);

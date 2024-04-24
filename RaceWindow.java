@@ -4,6 +4,7 @@ import java.awt.*;
 public class RaceWindow extends JFrame {
     private JTextArea textArea;
     private JButton restartButton;
+    private JButton gambleButton;
     private Race race;
     private Horse[] horses;
 
@@ -16,19 +17,29 @@ public class RaceWindow extends JFrame {
 
         textArea = new JTextArea(20, 40);
         textArea.setEditable(false);
-        Font font = new Font("Monospaced", Font.PLAIN, 12);
-        textArea.setFont(font);
         JScrollPane scrollPane = new JScrollPane(textArea);
         add(scrollPane, BorderLayout.CENTER);
 
         restartButton = new JButton("Restart Race");
         restartButton.addActionListener(e -> restartRace());
         restartButton.setEnabled(false);
-        add(restartButton, BorderLayout.SOUTH);
+
+        gambleButton = new JButton("Go to Gambling");
+        gambleButton.addActionListener(e -> openGamblingGUI());
+        gambleButton.setEnabled(false);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(restartButton);
+        buttonPanel.add(gambleButton);
+        add(buttonPanel, BorderLayout.SOUTH);
 
         setVisible(true);
 
         startRace(gui);
+    }
+
+    private void openGamblingGUI() {
+        new GamblingGUI(horses).setVisible(true);
     }
 
     private void startRace(GUI gui) {
@@ -58,6 +69,7 @@ public class RaceWindow extends JFrame {
         new Thread(() -> {
             race.startRace();
             SwingUtilities.invokeLater(() -> restartButton.setEnabled(true));
+            SwingUtilities.invokeLater(() -> gambleButton.setEnabled(true));
         }).start();
     }
 

@@ -2,6 +2,9 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JTextArea;
 import java.util.function.Consumer;
+import java.util.HashSet;
+import java.util.*;
+import java.io.*;
 
 public class Race {
     private int raceLength;
@@ -82,7 +85,6 @@ public class Race {
         }
     }
     
-
     private void announceWinner() {
         Horse winner = horses.stream()
                              .filter(horse -> !horse.hasFallen())
@@ -95,6 +97,15 @@ public class Race {
     }
 
     private void moveHorse(Horse theHorse) {
+        boolean isUsersHorse = (horses.indexOf(theHorse) == 0);
+    
+        double extraStepProbability = 0;
+    
+        if (isUsersHorse) {
+            Set<String> purchasedItems = readPurchasedItems();
+            extraStepProbability = 0.05 * purchasedItems.size();
+        }
+    
         if (!theHorse.hasFallen()) {
             double fallProbability = 0.1 * theHorse.getConfidence() * theHorse.getConfidence();
             if ("Rainy".equals(trackCondition)) {
@@ -105,9 +116,12 @@ public class Race {
                     theHorse.moveForward();
                 }
             }
-
+    
             if (Math.random() < theHorse.getConfidence()) {
                 theHorse.moveForward();
+            }
+            if (Math.random() < extraStepProbability) {
+                theHorse.moveForward(); 
             }
             if (Math.random() < fallProbability) {
                 theHorse.fall();
@@ -115,6 +129,24 @@ public class Race {
             }
         }
     }
+    
+    
+    private Set<String> readPurchasedItems() {
+        File file = new File("purchasedItems.txt");
+        Set<String> items = new HashSet<>();
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    items.add(line.trim());
+                }
+            } catch (IOException ex) {
+                raceOutput.append("Failed to read purchased items.\n");
+            }
+        }
+        return items;
+    }
+    
 
     private boolean raceWonBy(Horse theHorse) {
         return theHorse.getDistanceTravelled() >= raceLength;

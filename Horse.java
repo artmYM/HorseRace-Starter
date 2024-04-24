@@ -14,8 +14,8 @@ public class Horse {
     private int movesBeforeFall;
     private int totalFalls;
     private LinkedList<Integer> recentPlacements = new LinkedList<>();
-
     private static int nextID = 1;
+    
 
     public Horse(char horseSymbol, String horseName, double horseConfidence) {
         this.horseID = nextID++;
