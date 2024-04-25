@@ -7,15 +7,13 @@ public class HorseManager {
     private Horse[] horses;
 
     public HorseManager(int numberOfTracks, char userSymbol, String userName, double userConfidence) {
-        if (numberOfTracks < 2) {
-            throw new IllegalArgumentException("At least two horses are required to initialize HorseManager.");
-        } else if (numberOfTracks > 8){numberOfTracks = 8;}
         horses = new Horse[numberOfTracks];
         initializeHorses(userSymbol, userName, userConfidence);
     }
 
     private void initializeHorses(char userSymbol, String userName, double userConfidence) {
-        List<String> availableNames = new ArrayList<>(List.of(
+
+        List<String> availableNames = new ArrayList<String>(List.of(
             "Blitz", "Shadow", "Mystery", "Spirit", "Champion", "Lightning", "Thunder", "Gallop", "Whisper", "Storm"
         ));
         
