@@ -1,33 +1,19 @@
+public class Horse {
 
-/**
- * Write a description of class Horse here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
- */
-public class Horse
-{
-    //Fields of class Horse
     private char horseSymbol;
     private String horseName;
     private double horseConfidence;
     private boolean hasFallen;
     private int distanceTravelled;
-      
-    //Constructor of class Horse
-    /**
-     * Constructor for objects of class Horse
-     */
-    public Horse(char horseSymbol, String horseName, double horseConfidence)
-    {
+
+    // Constructor for Horse class
+    public Horse(char horseSymbol, String horseName, double horseConfidence) {
         this.horseSymbol = horseSymbol;
         this.horseName = horseName;
         this.horseConfidence = horseConfidence;
         this.hasFallen = false;
         this.distanceTravelled = 0;
     }
-    
-    
     
     //Other methods of class Horse
     public void fall()
@@ -66,19 +52,34 @@ public class Horse
         return this.hasFallen;
     }
 
-    public void moveForward()
-    {
-        this.distanceTravelled++;
+    public void moveForward() {
+        if (!hasFallen) {
+            this.distanceTravelled++;
+        } else {
+            System.out.println("Cannot move forward, horse has fallen.");
+        }
     }
 
-    public void setConfidence(double newConfidence)
-    {
-        this.horseConfidence = newConfidence;
+    public void setConfidence(double newConfidence) {
+        try {
+            if (newConfidence < 0 || newConfidence > 1) {
+                throw new IllegalArgumentException("Confidence must be between 0 and 1.");
+            }
+            this.horseConfidence = newConfidence;
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
     
-    public void setSymbol(char newSymbol)
-    {
-        this.horseSymbol = newSymbol;
+    public void setSymbol(char newSymbol) {
+        try {
+            if (!Character.isLetter(newSymbol)) {
+                throw new IllegalArgumentException("Symbol must be a letter.");
+            }
+            this.horseSymbol = newSymbol;
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
-    
+
 }
