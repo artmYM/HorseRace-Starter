@@ -1,19 +1,13 @@
-<<<<<<< HEAD
 import java.util.LinkedList;
 import java.util.List;
 
 public class Horse {
     private int horseID;
-=======
-public class Horse {
-
->>>>>>> main
     private char horseSymbol;
     private String horseName;
     private double horseConfidence;
     private boolean hasFallen;
     private int distanceTravelled;
-<<<<<<< HEAD
     private boolean hasWonRecentRace;
     private int wins;
     private int losses;
@@ -25,11 +19,6 @@ public class Horse {
 
     public Horse(char horseSymbol, String horseName, double horseConfidence) {
         this.horseID = nextID++;
-=======
-
-    // Constructor for Horse class
-    public Horse(char horseSymbol, String horseName, double horseConfidence) {
->>>>>>> main
         this.horseSymbol = horseSymbol;
         this.horseName = horseName;
         this.horseConfidence = horseConfidence;
@@ -39,7 +28,6 @@ public class Horse {
         HorseStatsManager.loadHorseStats(this);
     }
     
-<<<<<<< HEAD
     public double getWinRate() {
         int totalRaces = wins + losses;
         return totalRaces > 0 ? ((double) wins / totalRaces) * 100 : 0;
@@ -145,11 +133,6 @@ public class Horse {
     }
 
     public void fall() {
-=======
-    //Other methods of class Horse
-    public void fall()
-    {
->>>>>>> main
         this.hasFallen = true;
     }
 
@@ -179,7 +162,6 @@ public class Horse {
     }
 
     public void moveForward() {
-<<<<<<< HEAD
         this.distanceTravelled++;
     }
 
@@ -199,35 +181,3 @@ public class Horse {
         losses++;
     }
 }
-=======
-        if (!hasFallen) {
-            this.distanceTravelled++;
-        } else {
-            System.out.println("Cannot move forward, horse has fallen.");
-        }
-    }
-
-    public void setConfidence(double newConfidence) {
-        try {
-            if (newConfidence < 0 || newConfidence > 1) {
-                throw new IllegalArgumentException("Confidence must be between 0 and 1.");
-            }
-            this.horseConfidence = newConfidence;
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    public void setSymbol(char newSymbol) {
-        try {
-            if (!Character.isLetter(newSymbol)) {
-                throw new IllegalArgumentException("Symbol must be a letter.");
-            }
-            this.horseSymbol = newSymbol;
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-}
->>>>>>> main
