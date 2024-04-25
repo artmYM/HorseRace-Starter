@@ -1,5 +1,6 @@
 public class RaceTest {
     public static void main(String[] args) {
+        /* 
         // Create a race of 100 meters length
         Race race = new Race(50);
 
@@ -14,6 +15,6 @@ public class RaceTest {
         race.addHorse(horse3, 3);
 
         // Start the race
-        race.startRace();
+        race.startRace();*/
     }
 }

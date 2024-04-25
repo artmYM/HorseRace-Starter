@@ -5,6 +5,9 @@ import java.util.function.Consumer;
 import java.util.HashSet;
 import java.util.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 
 public class Race {
     private int raceLength;
@@ -107,6 +110,7 @@ public class Race {
         }
     
         if (!theHorse.hasFallen()) {
+            theHorse.moveForward();
             double fallProbability = 0.1 * theHorse.getConfidence() * theHorse.getConfidence();
             if ("Rainy".equals(trackCondition)) {
                 fallProbability += 0.01;
@@ -200,12 +204,11 @@ public class Race {
     }
 
     public void finishRace() {
-        printRace(); 
+        printRace();
         rankHorses();
-
-
-        updateRecentRankings();
-
+        updateRecentRankings(); 
+        handleBettingOutcome(); 
+    
         if (onWinnerDeclared != null) {
             Horse winner = getWinner();
             if (winner != null) {
@@ -213,6 +216,69 @@ public class Race {
             }
         }
     }
+    
+    private void handleBettingOutcome() {
+        Horse winner = getWinner();
+        File file = new File("bets.txt");
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line = reader.readLine();  
+                if (line != null && !line.isEmpty()) {
+                    String[] betDetails = line.split(":");
+                    if (betDetails.length == 3) {
+                        String betHorseName = betDetails[0];
+                        int betAmount = Integer.parseInt(betDetails[1]);
+                        double multiplier = Double.parseDouble(betDetails[2]);
+    
+                        int balance = readCurrentBalance();
+                        boolean won = winner != null && winner.getName().equals(betHorseName);
+                        if (won) {
+                            int winnings = (int) (betAmount * (multiplier - 1));
+                            balance += winnings;
+                            raceOutput.append(String.format("You won! Bet on %s earned $%d. New balance: $%d.\n", betHorseName, winnings, balance));
+                        } else {
+                            balance -= betAmount;
+                            raceOutput.append(String.format("You lost! Bet on %s cost you $%d. New balance: $%d.\n", betHorseName, betAmount, balance));
+                        }
+                        saveNewBalance(balance);
+                    }
+                }
+            } catch (IOException e) {
+                raceOutput.append("Error reading bets or updating balance.\n");
+            }
+        
+            clearBetsFile();
+        }
+    }
+    
+
+    private void clearBetsFile() {
+        try {
+           
+            new PrintWriter("bets.txt").close();
+        } catch (FileNotFoundException e) {
+            raceOutput.append("Failed to clear bets file.\n");
+        }
+    }
+    
+    private int readCurrentBalance() {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get("balance.txt"));
+            return Integer.parseInt(lines.get(0).trim());
+        } catch (IOException e) {
+            raceOutput.append("Failed to read balance. Using default balance of 100.\n");
+            return 100;
+        }
+    }
+    
+    private void saveNewBalance(int balance) {
+        try {
+            Files.write(Paths.get("balance.txt"), Collections.singletonList(String.valueOf(balance)));
+        } catch (IOException e) {
+            raceOutput.append("Failed to save new balance.\n");
+        }
+    }
+    
 
     private void updateRecentRankings() {
         for (int i = 0; i < horses.size(); i++) {

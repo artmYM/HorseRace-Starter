@@ -27,6 +27,16 @@ public class Horse {
         this.hasWonRecentRace = false;
         HorseStatsManager.loadHorseStats(this);
     }
+    
+    public double getWinRate() {
+        int totalRaces = wins + losses;
+        return totalRaces > 0 ? ((double) wins / totalRaces) * 100 : 0;
+    }
+
+    public double getAveragePlacement() {
+        return recentPlacements.isEmpty() ? 0 :
+               recentPlacements.stream().mapToInt(i -> i).average().orElse(0);
+    }
 
     public List<String> getRecentPlacements() {
         List<String> placementsAsStrings = new LinkedList<>();
