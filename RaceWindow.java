@@ -8,7 +8,7 @@ public class RaceWindow extends JFrame {
     private Race race;
     private Horse[] horses;
 
-    public RaceWindow(starRaceGUI gui) {
+    public RaceWindow(startRaceGUI gui) {
         setTitle("Race Results");
         setSize(500, 400);
         setLocationRelativeTo(null);
@@ -42,7 +42,7 @@ public class RaceWindow extends JFrame {
         new GamblingGUI(horses).setVisible(true);
     }
 
-    private void startRace(starRaceGUI gui) {
+    private void startRace(startRaceGUI gui) {
         String trackCondition = gui.getTrackStatus();
         if (gui.getTrackLength() != -1 && gui.getNumberOfTracks() != -1) {
             race = new Race(gui.getTrackLength(), textArea, trackCondition, this::displayWinner);
@@ -104,6 +104,6 @@ public class RaceWindow extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new RaceWindow(new starRaceGUI()));
+        SwingUtilities.invokeLater(() -> new RaceWindow(new startRaceGUI()));
     }
 }
