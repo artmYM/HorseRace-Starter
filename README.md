@@ -17,14 +17,11 @@ You can access gambling part after running a single race. Use gambling interface
 
 Average rank is calulcated by getting an average of up to 5 recent races
 
-
-
 ### Confidence
 
 Information point: by default, on each turn horse has a chance to fall ([confidence ^ 2] * 0.1). When a horse falls, its confidence drops by 0.01, when a horse wins, its confidence increases by 0.05.
 
 Information point: Each item adds a chance a 5% chance that a horse moves an extra step during its turn. Sunny condition is a standard condition, Rainy condition increases falling probability of a horse by 1% on each turn. Icy condition increases a fall probability by 2% on each turn but adds a 40% to move an additonal space.
-
 
 ### Odds calculation: 
 
@@ -32,6 +29,13 @@ for non-zero winrate horses: (10 - winRate * averagePlacement / 10.0)
 
 for zero winrate horses: 10
 
+## Dependencies
+- Java (At least JDK 17.0.8)
+
 ## How to install and run:
 -Ensure your java is up to date
--Run the main method in startRaceGUI
+-Run the main method in startRaceGUI.java
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
